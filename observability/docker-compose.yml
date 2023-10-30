@@ -1,0 +1,48 @@
+version: '3.7'
+services:
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - grafana_storage:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  tempo:
+    image: grafana/tempo:2.2.0
+    command: ["--config.file=/etc/tempo-local.yaml"]
+    ports:
+      - 3200:3200
+    volumes:
+      - ./tempo-local.yaml:/etc/tempo-local.yaml
+    depends_on:
+      - loki
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus
+    ports:
+      - 9090:9090
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=7d'
+
+  pushgateway:
+    image: prom/pushgateway
+    ports:
+      - 9091:9091
+
+  loki:
+    image: grafana/loki
+    container_name: loki
+    ports:
+      - 3100:3100  
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml 
+      
+volumes:
+  grafana_storage:
