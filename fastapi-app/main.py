@@ -1,8 +1,10 @@
-from fastapi import FastAPI, Response
-from  middleware.ObservabilityMiddleware import ObservabilityMiddleware
 import random
 import requests
 import uvicorn
+import httpx
+from fastapi import FastAPI, Response
+from  middleware.ObservabilityMiddleware import ObservabilityMiddleware
+from observability_config.loki_logs_config import logger
 
 app = FastAPI()
 
@@ -10,12 +12,14 @@ app.add_middleware(ObservabilityMiddleware)
 
 @app.get("/")
 def welcome():
+    logger.info('hello message was sent')
     return {"message": "Hello, welcome to the application!"}
 
 @app.get("/random")
 def get_random_number():
-    random_number = random.randint(0, 1000)
-    return {"message": f"The random number is {random_number}"}
+    random_number = random.randint(0, 100)
+    logger.info('random number between 0 and 100 was calculated')
+    return {"message": f"The random number was created", "number": random_number}
 
 def calc_factorial(number):
     factorial = 1
@@ -24,18 +28,23 @@ def calc_factorial(number):
     return factorial
 
 @app.get("/factorial")
-def get_factorial():
-    random_number = random.randint(10, 100)
-    factorial = calc_factorial(random_number)
-    return {"message": f"The factorial of number {random_number} is {factorial}"}
+async def get_factorial():
+    async with httpx.AsyncClient() as client:
+        random_number = await client.get('http://localhost:8000/random')
+        random_number = random_number.json()
+        random_number = random_number['number']
+        factorial = calc_factorial(random_number)
+        logger.info('factorial was calculated successfully')
+        return {"message": f"The factorial of number {random_number} is {factorial}"}
     
 @app.get("/requests")
-def multiple_requests():
-    requests.get("http://localhost:8000/")
-    requests.get("http://localhost:8000/random")
-    requests.get("http://localhost:8000/factorial")
-
-    return {"message": "Multiple requests are sent"}
+async def multiple_requests():
+    async with httpx.AsyncClient() as client:
+        await client.get("http://localhost:8000/")
+        await client.get("http://localhost:8000/random")
+        await client.get("http://localhost:8000/factorial")
+        logger.info('multiple requests were made successfully')
+        return {"message": "Multiple requests are sent"}
 
 
 if __name__ == "__main__":
