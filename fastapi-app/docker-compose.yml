@@ -4,7 +4,7 @@ services:
     container_name: fastapi-app
     restart: always
     build:
-      context: ..
+      context: .
     ports:
       - 8000:8000
     networks:
@@ -13,4 +13,4 @@ services:
 networks:
   observability-network:
     external:
-      name: observability_default
+      name: observability-network
