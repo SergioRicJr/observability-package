@@ -1,8 +1,7 @@
 import random
-import requests
 import uvicorn
 import httpx
-from fastapi import FastAPI, Response
+from fastapi import FastAPI
 from  middleware.ObservabilityMiddleware import ObservabilityMiddleware
 from observability_config.loki_logs_config import logger
 
