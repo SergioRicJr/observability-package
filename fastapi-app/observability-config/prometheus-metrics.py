@@ -4,7 +4,7 @@ registry = CollectorRegistry()
 
 status_http_counter = Counter(
     'http_requests_total_by_code',
-    'total de respostas por status http',
+    'responses total by status code',
     ['http_code'],
     registry=registry
 )
