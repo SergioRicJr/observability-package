@@ -61,3 +61,4 @@ volumes:
 networks:
   observability-network:
     driver: bridge 
+    name: observability-network
