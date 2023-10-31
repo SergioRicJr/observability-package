@@ -3,7 +3,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 from starlette.types import ASGIApp
 import time
-from observability_config.prometheus_metrics import requests_in_progress, status_http_counter, http_request_duration, send_metrics
+from observability_config.metric_config import requests_in_progress, status_http_counter, http_request_duration, send_metrics
 
 class ObservabilityMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: ASGIApp, app_name: str = "fastapi-app") -> None:

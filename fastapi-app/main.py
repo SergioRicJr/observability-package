@@ -3,7 +3,7 @@ import uvicorn
 import httpx
 from fastapi import FastAPI
 from  middleware.ObservabilityMiddleware import ObservabilityMiddleware
-from observability_config.loki_logs_config import logger
+from observability_config.log_config import logger
 
 app = FastAPI()
 
