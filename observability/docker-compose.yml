@@ -9,6 +9,9 @@ services:
       - grafana_storage:/var/lib/grafana
     depends_on:
       - prometheus
+    networks:
+      - observability-network
+
 
   tempo:
     image: grafana/tempo:2.2.0
@@ -19,6 +22,8 @@ services:
       - ./tempo/tempo-local.yaml:/etc/tempo-local.yaml
     depends_on:
       - loki
+    networks:
+      - observability-network
 
   prometheus:
     image: prom/prometheus:v2.47.2
@@ -29,11 +34,15 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.retention.time=7d'
+    networks:
+      - observability-network
 
   pushgateway:
     image: prom/pushgateway:v1.6.2
     ports:
       - 9091:9091
+    networks:
+        - observability-network
 
   loki:
     image: grafana/loki:2.9.2
@@ -43,6 +52,12 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - ./loki/loki-config.yaml:/etc/loki/local-config.yaml 
+    networks:
+      - observability-network
       
 volumes:
   grafana_storage:
+
+networks:
+  observability-network:
+    driver: bridge 
