@@ -10,7 +10,7 @@ resource = Resource.create({SERVICE_NAME: "fastapi-app"})
 trace.set_tracer_provider(TracerProvider(resource=resource))
 
 trace.get_tracer_provider().add_span_processor(
-    BatchSpanProcessor(OTLPSpanExporter(endpoint="http://tempo:4317"))
+    BatchSpanProcessor(OTLPSpanExporter(endpoint="http://nginx:80/tempo/v1/traces"))
 )
 
 tracer = trace.get_tracer(__name__)

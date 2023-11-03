@@ -35,7 +35,7 @@ class URLLogHandler(logging.Handler):
 
     def emit(self, record):
         log_entry = self.format(record)
-        response = send_logs(record, log_entry, 'fastapi-app', 'loki:3100')
+        response = send_logs(record, log_entry, 'fastapi-app', 'nginx:80')
         return response
     
 log_format = format='%(asctime)s levelname=%(levelname)s name=%(name)s file=%(filename)s:%(lineno)d trace_id=%(otelTraceID)s span_id=%(otelSpanID)s resource.service.name=%(otelServiceName)s trace_sampled=%(otelTraceSampled)s - message=%(message)s'

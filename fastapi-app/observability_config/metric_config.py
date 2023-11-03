@@ -23,4 +23,4 @@ requests_in_progress = Gauge(
 )
 
 def send_metrics():
-    pushadd_to_gateway('pushgateway:9091', job='fastapi-app', registry=registry)
+    pushadd_to_gateway('nginx:80/pushgateway', job='fastapi-app', registry=registry)
