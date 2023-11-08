@@ -1,4 +1,7 @@
 from prometheus_client import Counter, CollectorRegistry, Summary, Gauge, pushadd_to_gateway
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 registry = CollectorRegistry()
 
@@ -23,4 +26,4 @@ requests_in_progress = Gauge(
 )
 
 def send_metrics():
-    pushadd_to_gateway('nginx:80/pushgateway', job='fastapi-app', registry=registry)
+    pushadd_to_gateway(os.environ.get('PROMETHEUS_URL'), job='fastapi-app', registry=registry)
