@@ -11,8 +11,8 @@ def send_logs(record, log_entry, job_name, log_url):
     headers = {
             'Content-type': 'application/json'
     }
-    curr_datetime = datetime.datetime.now(pytz.timezone('America/Sao_Paulo'))
-    timestamp_unix_seconds = (curr_datetime - datetime.datetime(1970, 1, 1, tzinfo=pytz.utc)).total_seconds()
+    current_datetime = datetime.datetime.now()
+    timestamp_unix_seconds = (current_datetime - datetime.datetime(1970, 1, 1)).total_seconds()
     timestamp_unix_nanos = int(timestamp_unix_seconds * 1e9)
     data = {
         "streams": [
