@@ -90,9 +90,6 @@ se não, é possível abrir diretamente pela IDE, buscando a pasta do projeto pa
 * É possível acessar os dashboards através da navegação lateral, criar, editar e visualizar os que já foram construídos com as diferentes fontes de dados, como Prometheus, Tempo e Loki.
 ![Texto Alternativo](./observability/imgs/button-dashboards-grafana.png)
 
-Um exemplo desses dashboards é:
-![Texto Alternativo](./observability/imgs/grafana-dashboard-example.png)
-
 * É possível também ter acesso aos dados entrando em DataSources, selecionando "explore" em alguma das fontes e utilizando a linguagem de consulta de cada uma delas.
 ![Texto Alternativo](./observability/imgs/datasources-grafana.png)
 
