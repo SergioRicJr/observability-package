@@ -7,6 +7,7 @@ from observability_config.log_config import logger
 from starlette_prometheus import metrics, PrometheusMiddleware
 from observability_config.trace_config import trace
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.propagate import inject
 
 app = FastAPI()
 
@@ -35,26 +36,32 @@ def calc_factorial(number):
 
 @app.get("/factorial")
 async def get_factorial():
+    headers = {}
+    inject(headers)  # inject trace info to header
+    logger.critical(headers)
+
     async with httpx.AsyncClient() as client:
-        random_number = await client.get('http://localhost:8000/random')
-    async with httpx.AsyncClient() as client:
-        random_number = random_number.json()
-    async with httpx.AsyncClient() as client:
-        random_number = random_number['number']
+        random_number = await client.get('http://localhost:8000/random', headers=headers)
+    random_number = random_number.json()
+    random_number = random_number['number']
     factorial = calc_factorial(random_number)
     logger.info('factorial was calculated successfully')
     return {"message": f"The factorial of number {random_number} is {factorial}"}
     
 @app.get("/requests")
 async def multiple_requests():
+    headers = {}
+    inject(headers)  # inject trace info to header
+    logger.critical(headers)
+
     async with httpx.AsyncClient() as client:
-        await client.get("http://localhost:8000/")
+        await client.get("http://localhost:8000/", headers=headers)
     async with httpx.AsyncClient() as client:
-        await client.get("http://localhost:8000/random")
+        await client.get("http://localhost:8000/random", headers=headers)
     async with httpx.AsyncClient() as client:
-        await client.get("http://localhost:8000/factorial")
-        logger.info('multiple requests were made successfully')
-        return {"message": "Multiple requests are sent"}
+        await client.get("http://localhost:8000/factorial", headers=headers)
+    logger.info('multiple requests were made successfully')
+    return {"message": "Multiple requests are sent"}
 
 FastAPIInstrumentor.instrument_app(app, tracer_provider=trace.get_tracer_provider())
 
