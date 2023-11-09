@@ -1,8 +1,11 @@
+
 # Pacote de observabilidade
 
 conjunto com as principais ferramentas do mercado para observabilidade, tratado de forma agnóstica, onde qualquer aplicação pode se conectar a ele e enviar seus dados de métrica, logs e traces. Tendo de forma simplificada e pré-configurada acesso a visualizações e alertas. O projeto segue a seguinte arquitetura:
 
 ![Texto Alternativo](./observability/imgs/arquitetura-observability.PNG)
+
+Vale ressaltar que a aplicação feita aqui tem caráter somente de teste do pacote de observabilidade, é possível aplicar os conceitos demonstrados e utilizar o pacote de observabilidade em qualquer outra aplicação, trazendo muito valor ao projeto escolhido.
 
 ## Tabela de conteúdos
 * [Tecnologias utilizadas](#tecnologias-utilizadas)
@@ -14,12 +17,12 @@ conjunto com as principais ferramentas do mercado para observabilidade, tratado 
 * [Como usar](#como-usar)
     * [Pacote de observabilidade](#pacote-de-observabilidade)
     * [Aplicação FastAPI](#aplicacao-fastapi)
-* [Configurações](#configurações)
-    * [Aplicações](#aplicacoes)
+* [Configurações para uso do pacote](#configurações-para-uso-do-grafana)
     * [Métricas](#configurações)
     * [Traces](#configurações)
     * [Logs](#configurações)
-    * [Grafana](#configurações)
+* [Configurações Grafana](#configuracoes-grafana)
+    * [Datasources](#configurações)
 
 ## Tecnologias utilizadas
 * Grafana 10.2.0
@@ -84,17 +87,46 @@ se não, é possível abrir diretamente pela IDE, buscando a pasta do projeto pa
 
 ## Como usar
 ### Pacote de observabilidade
+* 1 - Rodando em ambiente local, basta acessar o navegador
+
 * 1 - No primeiro acesso é necessário realizar o login utilizando para username "admin", e para password "admin", e então redefinir a senha para os próximos acessos.
 ![Texto Alternativo](./observability/imgs/login-grafana.png)
 
 * É possível acessar os dashboards através da navegação lateral, criar, editar e visualizar os que já foram construídos com as diferentes fontes de dados, como Prometheus, Tempo e Loki.
 ![Texto Alternativo](./observability/imgs/button-dashboards-grafana.png)
 
-Um exemplo desses dashboards é:
-![Texto Alternativo](./observability/imgs/grafana-dashboard-example.png)
-
 * É possível também ter acesso aos dados entrando em DataSources, selecionando "explore" em alguma das fontes e utilizando a linguagem de consulta de cada uma delas.
 ![Texto Alternativo](./observability/imgs/datasources-grafana.png)
 
 ### Aplicação FastAPI
-Para gerar as métricas, traces e logs e acessar através do Grafana, é possível acessar 
+Para gerar as métricas, traces e logs, é possível acessar através de qualquer navegador acessar os endpoints da aplicação, que são:
+
+* Retorna uma mensagem de olá, e desejando boas vindas à aplicação.
+
+    ```http
+        http://127.0.0.1:8000/
+    ```
+
+* Retorna um numero aleatório de 0 a 100.
+    ```http
+        http://127.0.0.1:8000/random
+    ```
+
+* Faz uma requisição ao endpoint "/random", calcula a fatorial do número e retorna ele.
+    ```http
+        http://127.0.0.1:8000/factorial
+    ```
+
+* Faz requisições aos endpoints "/", "/random" e "/factorial", e retorna uma mensagem.
+    ```http
+        http://127.0.0.1:8000/requests
+    ```
+
+## Configurações para uso do pacote
+Para o uso do pacote de observabilidade são necessárias algumas configurações na aplicação, seguindo alguns padrões e formas de envio de métricas, traces e logs.
+
+### Métricas
+
+### Traces
+
+### Logs
