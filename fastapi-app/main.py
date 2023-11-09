@@ -37,17 +37,21 @@ def calc_factorial(number):
 async def get_factorial():
     async with httpx.AsyncClient() as client:
         random_number = await client.get('http://localhost:8000/random')
+    async with httpx.AsyncClient() as client:
         random_number = random_number.json()
+    async with httpx.AsyncClient() as client:
         random_number = random_number['number']
-        factorial = calc_factorial(random_number)
-        logger.info('factorial was calculated successfully')
-        return {"message": f"The factorial of number {random_number} is {factorial}"}
+    factorial = calc_factorial(random_number)
+    logger.info('factorial was calculated successfully')
+    return {"message": f"The factorial of number {random_number} is {factorial}"}
     
 @app.get("/requests")
 async def multiple_requests():
     async with httpx.AsyncClient() as client:
         await client.get("http://localhost:8000/")
+    async with httpx.AsyncClient() as client:
         await client.get("http://localhost:8000/random")
+    async with httpx.AsyncClient() as client:
         await client.get("http://localhost:8000/factorial")
         logger.info('multiple requests were made successfully')
         return {"message": "Multiple requests are sent"}
