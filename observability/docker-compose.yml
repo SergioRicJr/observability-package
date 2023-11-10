@@ -23,7 +23,9 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./etc/grafana/:/etc/grafana/provisioning/datasources
+      - ./etc/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+      - ./etc/dashboards:/etc/grafana/dashboards
       - grafana_storage:/var/lib/grafana
     environment:
       - GF_SERVER_ROOT_URL=http://localhost:3000/grafana/
