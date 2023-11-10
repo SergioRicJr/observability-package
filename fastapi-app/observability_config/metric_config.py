@@ -8,14 +8,14 @@ registry = CollectorRegistry()
 status_http_counter = Counter(
     'http_requests_total_by_code',
     'responses total by status code',
-    ['http_code'],
+    ['http_code', 'unmapped'],
     registry=registry
 )
 
 http_request_duration = Summary(
     'http_requests_duration_seconds',
     'reponse time of request',
-    ['url_path', 'http_method'],
+    ['url_path', 'http_method', 'unmapped'],
     registry=registry
 )
 

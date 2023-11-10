@@ -24,10 +24,15 @@ class ObservabilityMiddleware(BaseHTTPMiddleware):
 
         finally:
             status_code = response.status_code
-            status_http_counter.labels(http_code=status_code).inc(1)
+            status_http_counter.labels(http_code=status_code, 
+                                       unmapped=True if status_code == 404 else False
+                                       ).inc(1)
             requests_in_progress.dec()
             after_time = time.perf_counter()
-            http_request_duration.labels(url_path=path, http_method=method).observe(
+            http_request_duration.labels(url_path=path, 
+                                         http_method=method, 
+                                         unmapped=True if status_code == 404 else False
+                                         ).observe(
                 after_time - before_time
             )
             send_metrics()
