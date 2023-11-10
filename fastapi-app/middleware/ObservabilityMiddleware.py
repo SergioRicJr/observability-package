@@ -15,7 +15,7 @@ class ObservabilityMiddleware(BaseHTTPMiddleware):
         requests_in_progress.inc()
         method = request.method
         path = request.url.path
-
+        
         try:
             response = await call_next(request)
         except BaseException as error:
@@ -24,7 +24,7 @@ class ObservabilityMiddleware(BaseHTTPMiddleware):
 
         finally:
             status_code = response.status_code
-            status_http_counter.labels(http_code=status_code)
+            status_http_counter.labels(http_code=status_code).inc(1)
             requests_in_progress.dec()
             after_time = time.perf_counter()
             http_request_duration.labels(url_path=path, http_method=method).observe(
