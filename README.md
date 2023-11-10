@@ -126,7 +126,68 @@ Para gerar as métricas, traces e logs, é possível acessar através de qualque
 Para o uso do pacote de observabilidade são necessárias algumas configurações na aplicação, seguindo alguns padrões e formas de envio de métricas, traces e logs.
 
 ### Métricas
+Na abordagem utilizada os dados de métricas são gerados pela aplicação com o uso do [prometheus client](https://prometheus.io/docs/instrumenting/clientlibs), disponíveis em diversas linguagens, e através de requisição http os dados são enviados ao pushgateway, onde o prometheus realiza a busca dos dados.
+![Texto Alternativo](./observability/imgs/pushgateway-example)
+
+Em código foi realizado da seguinte forma:
+```py
+    from prometheus_client import Counter, CollectorRegistry, Summary, Gauge, pushadd_to_gateway
+    from dotenv import load_dotenv
+    import os
+    load_dotenv()
+
+    registry = CollectorRegistry()
+
+    status_http_counter = Counter(
+        'http_requests_total_by_code',
+        'responses total by status code',
+        ['http_code'],
+        registry=registry
+    )
+
+    def send_metrics():
+        pushadd_to_gateway(os.environ.get('PROMETHEUS_URL'), job='fastapi-app', registry=registry)
+```
+
+* PROMETHEUS_URL: a variável se refere a "<endereço do nginx ou nome do serviço>:<porta>/pushgateway". Passado no .env.
+* Envio das métricas: ao chamar a função send_metrics as métricas coletadas que tiveram o registry específico, são enviadas ao pushgateway.
 
 ### Traces
+Em relação aos traces o envio de dados também foi realizado com requisição http, porém utilizando a [sdk do OpenTelemetry para Python](https://github.com/open-telemetry/opentelemetry-python)
+
+```py
+    from opentelemetry import trace
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+    from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+    from dotenv import load_dotenv
+    import os
+    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+
+    load_dotenv()
+
+    resource = Resource.create({SERVICE_NAME: "fastapi-app"})
+    trace.set_tracer_provider(TracerProvider(resource=resource))
+
+    trace.get_tracer_provider().add_span_processor(
+        BatchSpanProcessor(OTLPSpanExporter(endpoint=os.environ.get('TEMPO_URL')))
+    )
+
+    tracer = trace.get_tracer(__name__)
+
+    
+    FastAPIInstrumentor.instrument_app(app, tracer_provider=trace.get_tracer_provider())
+```
+* TEMPO_URL: a variável se refere a "http://<endereço do nginx ou nome do serviço>:<porta>/tempo/v1/traces", passado no .env.
+
+* Instrumentação FastApi: No exemplo foi utilizada a instrumentação do FastAPI, que pega os traces id, e o span de forma automática, baseado nas requisições http realizadas dentro do método do endpoint .
+
+obs: Outra forma de criar um trace é de forma manual, com a seguinte linha de código:
+
+```py
+    with tracer.start_as_current_span():
+        # your code
+```
 
 ### Logs
