@@ -1,5 +1,6 @@
 import pytz
 import datetime
+from datetime import timezone
 import requests
 import logging
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
@@ -11,9 +12,10 @@ def send_logs(record, log_entry, job_name, log_url):
     headers = {
             'Content-type': 'application/json'
     }
-    current_datetime = datetime.datetime.now()
-    timestamp_unix_seconds = (current_datetime - datetime.datetime(1970, 1, 1)).total_seconds()
-    timestamp_unix_nanos = int(timestamp_unix_seconds * 1e9)
+    dt = datetime.datetime.now(timezone.utc) 
+    utc_time = dt.replace(tzinfo=timezone.utc)
+    utc_timestamp = utc_time.timestamp() 
+    timestamp_unix_nanos = int(utc_timestamp * 1e9)
     data = {
         "streams": [
             {
