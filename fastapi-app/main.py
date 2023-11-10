@@ -18,7 +18,6 @@ app.add_route("/metrics", metrics)
 @app.get("/")
 def welcome():
     logger.info('hello message was sent')
-    print("welcome")
     return {"message": "Hello, welcome to the application!"}
 
 @app.get("/random")
