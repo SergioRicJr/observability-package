@@ -217,7 +217,7 @@ A configuração dos logs é parte essencial do projeto, por isso a formatação
 
 ![Texto alternativo](./observability/imgs/logs-line-img.png)
 
-Já em relação ao envio dos logs ao Grafana Loki, é necessário somente uma requisição HTTP, seguindo o padrão definido pela documentação do Loki (), da seguinte forma:
+Já em relação ao envio dos logs ao Grafana Loki, é necessário somente uma requisição HTTP, seguindo o padrão definido pela documentação do [Loki](https://grafana.com/docs/loki/latest/reference/api/), da seguinte forma:
 
 ```
 {
@@ -250,7 +250,7 @@ No código exemplo em Python a adição da requisição HTTP no handler do log f
             return response
 ```
 
-* LOKI_URL: a variável se refere a "http://<enredeço do nginx ou nome do serviço>:<porta>/loki/api/v1/push"
+* LOKI_URL: a variável se refere a "http://<enredeço do nginx ou nome do serviço>:< porta>/loki/api/v1/push"
 
 * Inserção de trace_id: No projeto foi utilizada uma instrumentação que adiciona no log automaticamente o trace id, porém é possível também pegar manualmente.
 
