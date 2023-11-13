@@ -19,6 +19,7 @@ services:
 
   grafana:
     image: grafana/grafana:10.2.0
+    # command: ["--config=/etc/grafana/grafana.ini"]
     restart: always
     container_name: grafana
     ports:
@@ -27,6 +28,7 @@ services:
       - ./etc/grafana/:/etc/grafana/provisioning/datasources
       - ./etc/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yaml
       - ./etc/dashboards:/etc/grafana/dashboards
+      - ./etc/grafana.ini:/etc/grafana/grafana.ini
       - grafana_storage:/var/lib/grafana
     environment:
       - GF_SERVER_ROOT_URL=http://localhost:3000/grafana/
