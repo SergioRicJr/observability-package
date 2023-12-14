@@ -123,13 +123,13 @@ Para gerar as métricas, traces e logs, é possível acessar através de qualque
     ```
 
 ## Configurações para uso do pacote
-Para o uso do pacote de observabilidade são necessárias algumas configurações na aplicação, seguindo alguns padrões e formas de envio de métricas, traces e logs.
+Para o uso do pacote de observabilidade são necessárias algumas configurações na aplicação, seguindo alguns padrões e formas de envio de métricas, traces e logs. Para esse fim, foi utilizado no projeto a biblioteca [observability-mtl-instrument](https://pypi.org/project/observability-mtl-instrument/), porém, também é possível configurar de forma manual caso seja desejado, das seguintes formas...
 
 ### Métricas
-Na abordagem utilizada os dados de métricas são gerados pela aplicação com o uso do [prometheus client](https://prometheus.io/docs/instrumenting/clientlibs), disponíveis em diversas linguagens, e através de requisição http os dados são enviados ao pushgateway, onde o prometheus realiza a busca dos dados.
+Utilizando dados de métricas que são gerados pela aplicação com o uso do [prometheus client](https://prometheus.io/docs/instrumenting/clientlibs), disponíveis em diversas linguagens, e através de requisição http os dados são enviados ao pushgateway, onde o prometheus realiza a busca dos dados.
 ![Texto Alternativo](./observability/imgs/prometheus-grafana.PNG)
 
-Em código foi realizado da seguinte forma:
+Em código pode ser implementado da seguinte forma:
 ```py
     from prometheus_client import Counter, CollectorRegistry, Summary, Gauge, pushadd_to_gateway
     from dotenv import load_dotenv
@@ -155,7 +155,7 @@ Em código foi realizado da seguinte forma:
 ![Texto Alternativo](./observability/imgs/envio-prometheus-example.png)
 
 ### Traces
-Em relação aos traces o envio de dados também foi realizado com requisição http, porém utilizando a [sdk do OpenTelemetry para Python](https://github.com/open-telemetry/opentelemetry-python)
+Em relação aos traces o envio de dados também pode ser realizado com requisição http, porém utilizando a [sdk do OpenTelemetry para Python](https://github.com/open-telemetry/opentelemetry-python)
 
 ```py
     from opentelemetry import trace
