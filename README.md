@@ -54,7 +54,7 @@ Execute os comandos no terminal da IDE ou no terminal de comando do sistema oper
 ```
 * 3 - Clone o repositório:
 ```
- git clone https://github.com/Senai-Sorocaba-IC-2023-2/Sergio
+ git clone https://github.com/SergioRicJr/observability-package
 ```
 * 4 - Abra o projeto:
 caso esteja usando Visual Studio Code:
