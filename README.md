@@ -10,15 +10,13 @@ Vale ressaltar que a aplicação feita aqui tem caráter somente de t
 * [Tecnologias utilizadas](#tecnologias-utilizadas)
 * [Requisitos para uso](#requisitos-para-uso)
 * [Instalação](#instalação)
+* [Observability Mtl Instument](#observability-mtl-instrument)
 * [Como iniciar](#como-iniciar)
     * [Pacote de observabilidade](#pacote-de-observabilidade)
     * [Aplicação FastAPI](#aplicacao-fastapi)
 * [Como usar](#como-usar)
     * [Pacote de observabilidade](#pacote-de-observabilidade)
     * [Aplicação FastAPI](#aplicacao-fastapi)
-* [Configurações para uso do pacote](#configurações-para-uso-do-grafana)
-    * [Métricas](#configurações)
-    * [Traces](#configurações)
     * [Logs](#configurações)
 * [Configurações Grafana](#configuracoes-grafana)
     * [Datasources](#configurações)
@@ -40,6 +38,9 @@ Vale ressaltar que a aplicação feita aqui tem caráter somente de t
 * Versão Atualizada do WSL 2 
 
 Caso esteja rodando no sistema operacional windows, é necessário instalar o WSL, seguindo o tutorial do link... [WSL](https://boom-particle-8c8.notion.site/como-instalar-o-wsl2-readme-md-02dcaa42ac7d490bb8f5bb6620669590)
+
+## Observability Mtl Instument
+Esse repositório possui a configuração de observabilidade para diversas ferramentas, porém, vale ressaltar que a aplicação de exemplo utiliza a biblioteca [observability-mtl-instrument](https://github.com/SergioRicJr/observability-mtl-instrument). Neste link é possível acessar o repositório que fala mais sobre o uso, url para documentação e tutorial de uso.
 
 ## Instalação
 Execute os comandos no terminal da IDE ou no terminal de comando do sistema operacional utilizado:
@@ -122,92 +123,6 @@ Para gerar as métricas, traces e logs, é possível acessar através de qualque
         http://127.0.0.1:8000/requests
     ```
 
-## Configurações para uso do pacote
-Para o uso do pacote de observabilidade são necessárias algumas configurações na aplicação, seguindo alguns padrões e formas de envio de métricas, traces e logs. Para esse fim, foi utilizado no projeto a biblioteca [observability-mtl-instrument](https://pypi.org/project/observability-mtl-instrument/), porém, também é possível configurar de forma manual caso seja desejado, das seguintes formas...
-
-### Métricas
-Utilizando dados de métricas que são gerados pela aplicação com o uso do [prometheus client](https://prometheus.io/docs/instrumenting/clientlibs), disponíveis em diversas linguagens, e através de requisição http os dados são enviados ao pushgateway, onde o prometheus realiza a busca dos dados.
-![Texto Alternativo](./observability/imgs/prometheus-grafana.PNG)
-
-Em código pode ser implementado da seguinte forma:
-```py
-    from prometheus_client import Counter, CollectorRegistry, Summary, Gauge, pushadd_to_gateway
-    from dotenv import load_dotenv
-    import os
-    load_dotenv()
-
-    registry = CollectorRegistry()
-
-    status_http_counter = Counter(
-        'http_requests_total_by_code',
-        'responses total by status code',
-        ['http_code'],
-        registry=registry
-    )
-
-    def send_metrics():
-        pushadd_to_gateway(os.environ.get('PROMETHEUS_URL'), job='fastapi-app', registry=registry)
-```
-
-* PROMETHEUS_URL: a variável se refere a "<endereço do nginx ou nome do serviço>:<porta>/pushgateway". Passado no .env.
-* Envio das métricas: ao chamar a função send_metrics as métricas coletadas que tiveram o registry específico, são enviadas ao pushgateway.
-
-![Texto Alternativo](./observability/imgs/envio-prometheus-example.png)
-
-### Traces
-Em relação aos traces o envio de dados também pode ser realizado com requisição http, porém utilizando a [sdk do OpenTelemetry para Python](https://github.com/open-telemetry/opentelemetry-python)
-
-```py
-    from opentelemetry import trace
-    from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    from opentelemetry.sdk.resources import SERVICE_NAME, Resource
-    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-    from dotenv import load_dotenv
-    import os
-    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-
-    load_dotenv()
-
-    resource = Resource.create({SERVICE_NAME: "fastapi-app"})
-    trace.set_tracer_provider(TracerProvider(resource=resource))
-
-    trace.get_tracer_provider().add_span_processor(
-        BatchSpanProcessor(OTLPSpanExporter(endpoint=os.environ.get('TEMPO_URL')))
-    )
-
-    tracer = trace.get_tracer(__name__)
-
-    
-    FastAPIInstrumentor.instrument_app(app, tracer_provider=trace.get_tracer_provider())
-```
-* TEMPO_URL: a variável se refere a "http://<endereço do nginx ou nome do serviço>:<porta>/tempo/v1/traces", passado no .env.
-
-* Instrumentação FastApi: No exemplo foi utilizada a instrumentação do FastAPI, que pega os traces id, e o span de forma automática, baseado nas requisições http realizadas dentro do método do endpoint. Nesse caso o span é criado ao usar a seguinte linha de código para fazer uma chamada http:
-
-```py
-    from opentelemetry.propagate import inject
-    import httpx
-
-    headers = {}
-    inject(headers)  # inject trace info to header
-    logger.critical(headers)
-
-    async with httpx.AsyncClient() as client:
-        await client.get("http://localhost:8000/", headers=headers)
-```
-
-obs: Outra forma de criar um trace é de forma manual, com a seguinte linha de código:
-
-```py
-    with tracer.start_as_current_span():
-        # your code
-```
-
-Um exemplo dos traces está na imagem a seguir:
-![Texto Alternativo](./observability/imgs/trace-grafana.PNG)
-
-
 ### Logs
 A configuração dos logs é parte essencial do projeto, por isso a formatação escolhida para ele é necessária, e deve ser feita incluindo o trace_id e o span_id, afim de que o grafana posso conectar e criar o link para o trace que aquele log referencia, sendo feito da seguinte forma:
 
@@ -234,25 +149,6 @@ Já em relação ao envio dos logs ao Grafana Loki, é necessário somente uma r
     ]
 }
 ```
-
-No código exemplo em Python a adição da requisição HTTP no handler do log foi feita da seguinte forma:
-
-```py
-    class URLLogHandler(logging.Handler):
-        def __init__(self, formatter):
-            super(URLLogHandler, self).__init__()
-            self.formatter = logging.Formatter(formatter)
-
-        def emit(self, record):
-            log_entry = self.format(record)
-            response = send_logs(record, log_entry, 'fastapi-app',  
-    os.environ.get('LOKI_URL'))
-            return response
-```
-
-* LOKI_URL: a variável se refere a "http://<enredeço do nginx ou nome do serviço>:< porta>/loki/api/v1/push"
-
-* Inserção de trace_id: No projeto foi utilizada uma instrumentação que adiciona no log automaticamente o trace id, porém é possível também pegar manualmente.
 
 ## Configurações Grafana
 O grafana possui muitos arquivos que possibilitam sua customização, e algumas dessas configurações foram essenciais para o desenvolvimento do pacote, o conhecimento delas é importante para possíveis manutenções, resoluções de erro e adição de recursos personalizados. Essas configurações são passadas como volumes para o Grafana, da seguinte forma:
