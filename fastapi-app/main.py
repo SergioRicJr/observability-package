@@ -43,6 +43,9 @@ async def welcome():
 async def get_random_number():
     random_number = random.randint(0, 100)
     logger.info("random number between 0 and 100 was calculated")
+    if random_number < 51:
+        logger.error("random number cannot be less than 50")
+    
     return {"message": f"The random number was created", "number": random_number}
 
 
@@ -50,6 +53,8 @@ def calc_factorial(number):
     factorial = 1
     for i in range(1, number + 1):
         factorial *= i
+    if factorial > 1000:
+        logger.error("factorial cannot be higher than 1000")
     return factorial
 
 
@@ -64,7 +69,9 @@ async def get_factorial():
             "http://localhost:8000/random", headers=headers
         )
     random_number = random_number.json()
+    logger.debug("http response transformed into json")
     random_number = random_number["number"]
+    logger.debug("random number taken from json")
     factorial = calc_factorial(random_number)
     logger.info("factorial was calculated successfully")
     return {"message": f"The factorial of number {random_number} is {factorial}"}
